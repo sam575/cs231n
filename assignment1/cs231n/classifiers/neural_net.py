@@ -106,8 +106,8 @@ class TwoLayerNet(object):
     z = z/np.expand_dims(np.sum(z,axis=1),axis=1)
     loss += np.sum(-np.log(z[range(X.shape[0]),y]))
     loss = loss/X.shape[0]
-    loss += 0.5*reg*np.sum(W1*W1)
-    loss += 0.5*reg*np.sum(W2*W2)
+    loss += reg*np.sum(W1*W1)
+    loss += reg*np.sum(W2*W2)
     pass
     #############################################################################
     #                              END OF YOUR CODE                             #
