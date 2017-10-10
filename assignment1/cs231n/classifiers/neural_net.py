@@ -134,12 +134,13 @@ class TwoLayerNet(object):
     grads['b2'] = np.sum(z_grad,axis=0) 
     grads['b2'] /= X.shape[0]
     
-    grads['W1'] = z_norm*(y.shape[0]*X)
+    grads['W1'] = (-1+1/z_norm)*(y.shape[0]*X)
     grads['W1'] = np.dot(grads['W1'].T,h_clip)
     grads['W1'] /= X.shape[0]
     grads['W1'] += 2*reg*W1
     
-    grads['b1'] = np.sum(z_norm*h_clip,axis=0)
+    grads['b1'] = np.sum((-1+1/z_norm)*h_clip,axis=0)
+    grads['b1'] /= X.shape[0]
     pass
     #############################################################################
     #                              END OF YOUR CODE                             #
