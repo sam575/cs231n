@@ -121,25 +121,27 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    h_clip = (h>0).astype(np.float32)
-    
-    z_grad = np.zeros_like(z) 
-    z_grad += 1/z_norm
+    # z_grad = np.zeros_like(z) 
+    # z_grad += 1/z_norm
+    z_grad = z
     z_grad[range(X.shape[0]),y] += -1
     
     grads['W2'] = np.dot(h.T,z_grad)
     grads['W2'] /= X.shape[0]
     grads['W2'] += 2*reg*W2
     
+    # z[range(X.shape[0]),y] += -1
     grads['b2'] = np.sum(z_grad,axis=0) 
     grads['b2'] /= X.shape[0]
     
-    grads['W1'] = (-1+1/z_norm)*(y.shape[0]*X)
+    # grads['W1'] = (-1+1/z_norm)*(y.shape[0]*X)
+    grads['W1'] = (y.shape[0]-1)*X
     grads['W1'] = np.dot(grads['W1'].T,h_clip)
     grads['W1'] /= X.shape[0]
     grads['W1'] += 2*reg*W1
     
-    grads['b1'] = np.sum((-1+1/z_norm)*h_clip,axis=0)
+    # grads['b1'] = np.sum((-1+1/z_norm)*h_clip,axis=0)
+    grads['b1'] = np.sum((y.shape[0]-1)*h_clip,axis=0)
     grads['b1'] /= X.shape[0]
     pass
     #############################################################################
