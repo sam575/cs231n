@@ -185,6 +185,9 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
+      ind = np.random.choice(num_train,batch_size)
+      X_batch = X[ind]
+      y_batch = y[ind]
       pass
       #########################################################################
       #                             END OF YOUR CODE                          #
@@ -200,6 +203,10 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
+      self.params['W1'] += -learning_rate*grads['W1']
+      self.params['W2'] += -learning_rate*grads['W2']
+      self.params['b1'] += -learning_rate*grads['b1']
+      self.params['b2'] += -learning_rate*grads['b2']
       pass
       #########################################################################
       #                             END OF YOUR CODE                          #
@@ -245,6 +252,14 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
+    h = np.dot(X,self.params['W1'])
+    h += b1
+    #expand_dims not needed
+    #ReLU
+    h = np.clip(h,0,None)
+    scores = np.dot(h,self.params['W2'])
+    scores += b2
+    y_pred = np.argmax(scores,axis=1)
     pass
     ###########################################################################
     #                              END OF YOUR CODE                           #
