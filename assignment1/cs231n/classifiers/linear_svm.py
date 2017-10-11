@@ -26,23 +26,30 @@ def svm_loss_naive(W, X, y, reg):
   num_classes = W.shape[1]
   num_train = X.shape[0]
   loss = 0.0
+  count = 0
   for i in xrange(num_train):
     scores = X[i].dot(W)
     correct_class_score = scores[y[i]]
+    count = 0
     for j in xrange(num_classes):
       if j == y[i]:
         continue
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
+        count += 1
         loss += margin
+        for k in xrange(X.shape[1]):
+          dW[k][j] += X[i][k]
+    for k in xrange(X.shape[1]):
+          dW[k][y[i]] += -count*X[i][k]   
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
-
+  dW /= num_train
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
-
+  dW += reg*W
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dW.                #
@@ -70,6 +77,25 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
+  z = np.dot(X,W)
+  z_y = z[range(X.shape[0]),y]
+  z = z.T - z_y
+  z = z.T
+  z = z + 1
+  z = np.clip(z,0,None)
+  loss += np.sum(z) - X.shape[0]
+  loss /= X.shape[0]
+  
+  z[z>0] = 1
+  count_arr = np.sum(z,axis=1)
+  count_arr = count_arr - 1
+  z[range(X.shape[0]),y] = -count_arr
+  # ind = np.nonzero(z)
+  dW = np.dot(X.T,z)
+  dW /= X.shape[0]
+
+  dW +=  reg*W
+  loss += reg * np.sum(W * W)
   pass
   #############################################################################
   #                             END OF YOUR CODE                              #
