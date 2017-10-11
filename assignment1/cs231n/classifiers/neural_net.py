@@ -114,13 +114,15 @@ class TwoLayerNet(object):
     #                              END OF YOUR CODE                             #
     #############################################################################
 
-    # Backward pass: compute gradients
+    # Backward pass: compute                               gradients
     grads = {}
     #############################################################################
     # TODO: Compute the backward pass, computing the derivatives of the weights #
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
+    h_clip = (h>0).astype(np.float32)
+    
     # z_grad = np.zeros_like(z) 
     # z_grad += 1/z_norm
     z_grad = z
@@ -134,14 +136,16 @@ class TwoLayerNet(object):
     grads['b2'] = np.sum(z_grad,axis=0) 
     grads['b2'] /= X.shape[0]
     
+    grad_flow = np.dot(z_grad,W2.T)
+
     # grads['W1'] = (-1+1/z_norm)*(y.shape[0]*X)
-    grads['W1'] = (y.shape[0]-1)*X
-    grads['W1'] = np.dot(grads['W1'].T,h_clip)
+    # grads['W1'] = np.dot(z_grad,W2.T)
+    grads['W1'] = np.dot(X.T,h_clip*grad_flow)
     grads['W1'] /= X.shape[0]
     grads['W1'] += 2*reg*W1
     
     # grads['b1'] = np.sum((-1+1/z_norm)*h_clip,axis=0)
-    grads['b1'] = np.sum((y.shape[0]-1)*h_clip,axis=0)
+    grads['b1'] = np.sum(grad_flow*h_clip,axis=0)
     grads['b1'] /= X.shape[0]
     pass
     #############################################################################
@@ -255,12 +259,12 @@ class TwoLayerNet(object):
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
     h = np.dot(X,self.params['W1'])
-    h += b1
+    h += self.params['b1']
     #expand_dims not needed
     #ReLU
     h = np.clip(h,0,None)
     scores = np.dot(h,self.params['W2'])
-    scores += b2
+    scores += self.params['b2']
     y_pred = np.argmax(scores,axis=1)
     pass
     ###########################################################################
@@ -268,5 +272,4 @@ class TwoLayerNet(object):
     ###########################################################################
 
     return y_pred
-
 
