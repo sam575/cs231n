@@ -48,6 +48,16 @@ class ThreeLayerConvNet(object):
         # hidden affine layer, and keys 'W3' and 'b3' for the weights and biases   #
         # of the output affine layer.                                              #
         ############################################################################
+        h_ = input_dim[1]/2
+        w_ = input_dim[2]/2
+
+        self.params['b1'] = np.zeros(num_filters)
+        self.params['b2'] = np.zeros(hidden_dim)
+        self.params['b3'] = np.zeros(num_classes)
+
+        self.params['W1'] = np.random.randn(num_filters,input_dim[0],filter_size,filter_size)*weight_scale
+        self.params['W2'] = np.random.randn(h_*w_*num_filters,hidden_dim)*weight_scale
+        self.params['W3'] = np.random.randn(hidden_dim,num_classes)*weight_scale
         pass
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -80,6 +90,9 @@ class ThreeLayerConvNet(object):
         # computing the class scores for X and storing them in the scores          #
         # variable.                                                                #
         ############################################################################
+        scores,cache1 = conv_relu_pool_forward(X, W1, b1, conv_param, pool_param)
+        scores,cache2 = affine_relu_forward(scores, W2, b2)
+        scores,cache3 = affine_forward(scores, W3, b3)
         pass
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -95,6 +108,14 @@ class ThreeLayerConvNet(object):
         # data loss using softmax, and make sure that grads[k] holds the gradients #
         # for self.params[k]. Don't forget to add L2 regularization!               #
         ############################################################################
+        loss,dout = softmax_loss(scores,y)
+        loss += 0.5*self.reg*(np.sum(np.square(W1))+np.sum(np.square(W2))+np.sum(np.square(W3)))
+        dout,grads['W3'],grads['b3'] = affine_backward(dout,cache3)
+        dout,grads['W2'],grads['b2'] = affine_relu_backward(dout,cache2)
+        dout,grads['W1'],grads['b1'] = conv_relu_pool_backward(dout,cache1)
+        grads['W3'] += self.reg*W3
+        grads['W2'] += self.reg*W2
+        grads['W1'] += self.reg*W1
         pass
         ############################################################################
         #                             END OF YOUR CODE                             #
