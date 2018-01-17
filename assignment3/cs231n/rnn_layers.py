@@ -35,6 +35,7 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     # and cache variables respectively.                                          #
     ##############################################################################
     next_h = np.tanh(np.dot(prev_h,Wh) + np.dot(x,Wx) + b)
+    cache = (next_h,x, prev_h, Wx, Wh, b)
     pass
     ##############################################################################
     #                               END OF YOUR CODE                             #
@@ -64,6 +65,12 @@ def rnn_step_backward(dnext_h, cache):
     # HINT: For the tanh function, you can compute the local derivative in terms #
     # of the output value from tanh.                                             #
     ##############################################################################
+    next_h,x, prev_h, Wx, Wh, b = cache
+    db = dnext_h*(1 - next_h**2)
+    dWh = dnext_h*(1 - next_h**2)*prev_h
+    dWx = dnext_h*(1 - next_h**2)*x
+    dprev_h = dnext_h*(1 - next_h**2)*Wh
+    dx = dnext_h*(1 - next_h**2)*Wx
     pass
     ##############################################################################
     #                               END OF YOUR CODE                             #
@@ -95,6 +102,12 @@ def rnn_forward(x, h0, Wx, Wh, b):
     # input data. You should use the rnn_step_forward function that you defined  #
     # above. You can use a for loop to help compute the forward pass.            #
     ##############################################################################
+    t = x.shape(1)
+    h = np.zeros(x.shape(0),t,h0.shape(1))
+    h[:,0,:] = h0
+    for i in xrange(1,t):
+        h[:,i,:],_ = rnn_step_forward(x, h[:,i-1,:], Wx, Wh, b)
+    cache = (h, x, prev_h, Wx, Wh, b)
     pass
     ##############################################################################
     #                               END OF YOUR CODE                             #
@@ -122,6 +135,9 @@ def rnn_backward(dh, cache):
     # sequence of data. You should use the rnn_step_backward function that you   #
     # defined above. You can use a for loop to help compute the backward pass.   #
     ##############################################################################
+    t = x.shape(1)
+    for i in xrange(t-1,-1,-1):
+        
     pass
     ##############################################################################
     #                               END OF YOUR CODE                             #
