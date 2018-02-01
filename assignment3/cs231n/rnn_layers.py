@@ -270,7 +270,7 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
 	g = np.tanh(ifog[:,3*h:])
 	next_c = f*prev_c + i*g
 	next_h = o*np.tanh(next_c)
-	cache = i,f,o,g,next_c,next_h
+	cache = i,f,o,g,next_h,next_c,x,prev_h,prev_c,Wx,Wh 
 	pass
 	##############################################################################
 	#                               END OF YOUR CODE                             #
@@ -303,9 +303,20 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
 	# HINT: For sigmoid and tanh you can compute local derivatives in terms of  #
 	# the output value from the nonlinearity.                                   #
 	#############################################################################
-	i,f,o,g,next_c,next_h = cache
-	dprev_c = dnext_c*f + dnext_h*o*(1-(np.tanh(next_c)**2))*f
-	
+	i,f,o,g,next_h,next_c,x,prev_h,prev_c,Wx,Wh = cache
+	N,H = dnext_h.shape
+	dct = dnext_c + dnext_h*o*(1-(np.tanh(next_c)**2))
+	dprev_c = f*dct
+	di = i*(1-i)*g*dct
+	dg = (1-g**2)*i*dct
+	df = f*(1-f)*prev_c*dct
+	do = o*(1-o)*np.tanh(next_c)*dnext_h
+	difog = np.concatenate((di,df,do,dg),axis=1)
+	db = np.sum(difog,axis=0)
+	dx = np.dot(difog,Wx.T)
+	dprev_h = np.dot(difog,Wh.T)
+	dWx = np.dot(x.T,difog)
+	dWh = np.dot(prev_h.T,difog) 
 	pass
 	##############################################################################
 	#                               END OF YOUR CODE                             #
