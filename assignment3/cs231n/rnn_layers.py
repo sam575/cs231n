@@ -270,7 +270,7 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
 	g = np.tanh(ifog[:,3*h:])
 	next_c = f*prev_c + i*g
 	next_h = o*np.tanh(next_c)
-	cache = i,f,o,g
+	cache = i,f,o,g,next_c,next_h
 	pass
 	##############################################################################
 	#                               END OF YOUR CODE                             #
@@ -303,7 +303,7 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
 	# HINT: For sigmoid and tanh you can compute local derivatives in terms of  #
 	# the output value from the nonlinearity.                                   #
 	#############################################################################
-	i,f,o,g = cache
+	i,f,o,g,next_c,next_h = cache
 	
 	pass
 	##############################################################################
