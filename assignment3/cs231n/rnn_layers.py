@@ -296,7 +296,7 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
 	- dWh: Gradient of hidden-to-hidden weights, of shape (H, 4H)
 	- db: Gradient of biases, of shape (4H,)
 	"""
-	dx, dh, dc, dWx, dWh, db = None, None, None, None, None, None
+	dx, dprev_h, dprev_c, dWx, dWh, db = None, None, None, None, None, None
 	#############################################################################
 	# TODO: Implement the backward pass for a single timestep of an LSTM.       #
 	#                                                                           #
@@ -304,6 +304,7 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
 	# the output value from the nonlinearity.                                   #
 	#############################################################################
 	i,f,o,g,next_c,next_h = cache
+	dprev_c = dnext_c*f + dnext_h*o*(1-(np.tanh(next_c)**2))*f
 	
 	pass
 	##############################################################################
