@@ -139,13 +139,19 @@ class CaptioningRNN(object):
         ############################################################################
         h0,cache1 = affine_forward(features,W_proj,b_proj)
         x,cache2 = word_embedding_forward(captions_in,W_embed)
-        h,cache3 = rnn_forward(x, h0, Wx, Wh, b)
+        if self.cell_type == 'rnn':
+            h,cache3 = rnn_forward(x, h0, Wx, Wh, b)
+        else:
+            h,cache3 = lstm_forward(x, h0, Wx, Wh, b)
         out,cache4 = temporal_affine_forward(h, W_vocab, b_vocab)
         
         loss,dout = temporal_softmax_loss(out, captions_out, mask)
 
         dh, grads['W_vocab'], grads['b_vocab'] = temporal_affine_backward(dout,cache4)
-        dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dh, cache3)
+        if self.cell_type == 'rnn':
+            dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dh, cache3)
+        else:
+            dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(dh, cache3)
         grads['W_embed'] = word_embedding_backward(dx, cache2)
         _, grads['W_proj'], grads['b_proj'] = affine_backward(dh0, cache1)        
 
@@ -211,15 +217,19 @@ class CaptioningRNN(object):
         # functions; you'll need to call rnn_step_forward or lstm_step_forward in #
         # a loop.                                                                 #
         ###########################################################################
-        h0,_ = affine_forward(features,W_proj,b_proj)
+        h,_ = affine_forward(features,W_proj,b_proj)
         captions_in = np.full(N,self._start,dtype=int)
-        prev_h = h0
+        # prev_h = h0
+        # h = h0
         for i in xrange(max_length):
 	        x,_ = word_embedding_forward(captions_in,W_embed)
-	        h,_ = rnn_step_forward(x, prev_h, Wx, Wh, b)
+            if self.cell_type == 'rnn':
+	           h,_ = rnn_step_forward(x, h, Wx, Wh, b)
+            else:
+               h,c,_ = lstm_step_forward(x, h, c, Wx, Wh, b)
 	        out,_ = temporal_affine_forward(h[:,None,:], W_vocab, b_vocab)
 	        captions_in = np.argmax(out[:,0,:],axis=1)
-	        prev_h = h
+	        # prev_h = h
 	        captions[:,i] = captions_in
         pass
         ############################################################################
