@@ -14,7 +14,7 @@ Course Website: http://cs231n.stanford.edu/
 * Fully-connected Neural Network
 * Batch Normalization
 * Dropout
-* Convolutional Networks (30 points)
+* Convolutional Networks
 * PyTorch on CIFAR-10
 
 ### Assignment 3
